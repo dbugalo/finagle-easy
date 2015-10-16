@@ -3,8 +3,7 @@ package com.twitter.finagle.easy.example;
 import com.twitter.finagle.Httpx;
 import com.twitter.finagle.ListeningServer;
 import com.twitter.finagle.Service;
-import com.twitter.finagle.easy.server.ResteasyServiceBuilder;
-import com.twitter.finagle.httpx.Method;
+import com.twitter.finagle.easy.server.ServiceBuilder;
 import com.twitter.finagle.httpx.Request;
 import com.twitter.finagle.httpx.Response;
 import com.twitter.ostrich.admin.AdminHttpService;
@@ -14,7 +13,7 @@ import com.twitter.util.Await;
 /**
  * Example of creating a server
  *
- * @author ed.peters
+ * @author denis.rangel
  */
 public class ExampleServer implements ExampleService {
 
@@ -25,7 +24,7 @@ public class ExampleServer implements ExampleService {
 
 	public static void main(String[] args) throws Exception {
 
-		Service<Request, Response> service = ResteasyServiceBuilder.get().withThreadPoolSize(100)
+		Service<Request, Response> service = ServiceBuilder.get().withThreadPoolSize(100)
 				.withEndpoint(new ExampleServer()).build();
 
 		ListeningServer server = Httpx.serve(":10000", service);

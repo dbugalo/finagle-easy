@@ -21,7 +21,6 @@ import com.twitter.common.zookeeper.ServerSet;
 import com.twitter.common.zookeeper.ServerSetImpl;
 import com.twitter.common.zookeeper.ZooKeeperClient;
 import com.twitter.finagle.Service;
-import com.twitter.finagle.builder.ClientBuilder;
 import com.twitter.finagle.builder.ClientConfig.Yes;
 import com.twitter.finagle.easy.util.ServiceUtils;
 import com.twitter.finagle.httpx.Http;
@@ -36,7 +35,7 @@ import com.twitter.finagle.zookeeper.ZookeeperServerSetCluster;
  * @author ed.peters
  * @author jeff
  */
-public class ResteasyClientBuilder {
+public class ClientBuilder {
 
 	/**
 	 * Default limit for the number of host connections
@@ -50,7 +49,7 @@ public class ResteasyClientBuilder {
 	 */
 	public static final Amount<Integer, Time> DEFAULT_ZK_TIMEOUT = Amount.of(1, SECONDS);
 
-	private static final Log LOG = LogFactory.getLog(ResteasyClientBuilder.class);
+	private static final Log LOG = LogFactory.getLog(ClientBuilder.class);
 
 	/*
 	 * Resteasy insists on having a real endpoint URL. Since we're handling the
@@ -69,17 +68,17 @@ public class ResteasyClientBuilder {
 
 	private ResteasyProviderFactory providerFactory;
 	
-	private ClientBuilder<Request, Response, Yes, Yes, Yes> clientBuilder;
+	private com.twitter.finagle.builder.ClientBuilder<Request, Response, Yes, Yes, Yes> clientBuilder;
 	
 	private ClientExecutor executor;
 	
-	protected ResteasyClientBuilder() {
+	protected ClientBuilder() {
 	}
 
 	/**
 	 * Same as <code>withHttpClient(host, 80)</code>
 	 */
-	public ResteasyClientBuilder withHttpClient(String host) {
+	public ClientBuilder withHttpClient(String host) {
 		return withHttpClient(host, 80);
 	}
 
@@ -92,11 +91,12 @@ public class ResteasyClientBuilder {
 	 *            the remote port to connect to
 	 * @return this (for chaining)
 	 */
-	public ResteasyClientBuilder withHttpClient(String host, int port) {
+	public ClientBuilder withHttpClient(String host, int port) {
 		Preconditions.checkNotNull(host, "host");
 		Preconditions.checkArgument(port > 0, "invalid port " + port);
 		info(LOG, "new HTTP client for %s:%s", host, port);
-		ClientBuilder<Request, Response, Yes, Yes, Yes> builder = ClientBuilder.get().codec(Http.get()).hostConnectionLimit(DEFAULT_HOST_CONNECTIONS)
+		
+		com.twitter.finagle.builder.ClientBuilder<Request, Response, Yes, Yes, Yes> builder = com.twitter.finagle.builder.ClientBuilder.get().codec(Http.get()).hostConnectionLimit(DEFAULT_HOST_CONNECTIONS)
 				.hosts(new InetSocketAddress(host, port));
 		return withClientBuilder(builder);
 	}
@@ -104,7 +104,7 @@ public class ResteasyClientBuilder {
 	/**
 	 * Same as <code>withZookeeperClient(zkHost, 2181, zkLocator)</code>
 	 */
-	public ResteasyClientBuilder withZookeeperClient(String zkHost, String zkLocator) {
+	public ClientBuilder withZookeeperClient(String zkHost, String zkLocator) {
 		return withZookeeperClient(zkHost, 2181, zkLocator);
 	}
 
@@ -120,13 +120,13 @@ public class ResteasyClientBuilder {
 	 *            the name-service path of the service to connect to
 	 * @return this (for chaining)
 	 */
-	public ResteasyClientBuilder withZookeeperClient(String zkHost, int zkPort, String zkLocator) {
+	public ClientBuilder withZookeeperClient(String zkHost, int zkPort, String zkLocator) {
 		Preconditions.checkNotNull(zkHost, "zkHost");
 		Preconditions.checkNotNull(zkLocator, "zkLocator");
 		info(LOG, "new Zookeeper client for %s:%s", zkHost, zkPort, zkLocator);
 		InetSocketAddress addr = new InetSocketAddress(zkHost, zkPort);
 		ServerSet serverSet = new ServerSetImpl(new ZooKeeperClient(DEFAULT_ZK_TIMEOUT, addr), zkLocator);
-		ClientBuilder<Request, Response, Yes, Yes, Yes> builder = ClientBuilder.get().codec(Http.get()).hostConnectionLimit(DEFAULT_HOST_CONNECTIONS)
+		com.twitter.finagle.builder.ClientBuilder<Request, Response, Yes, Yes, Yes> builder = com.twitter.finagle.builder.ClientBuilder.get().codec(Http.get()).hostConnectionLimit(DEFAULT_HOST_CONNECTIONS)
 				.cluster(new ZookeeperServerSetCluster(serverSet));
 		return withClientBuilder(builder);
 	}
@@ -136,7 +136,7 @@ public class ResteasyClientBuilder {
 	 *            an arbitrary {@link ClientBuilder} to use
 	 * @return this (for chaining)
 	 */
-	public ResteasyClientBuilder withClientBuilder(ClientBuilder<Request, Response, Yes, Yes, Yes> clientBuilder) {
+	public ClientBuilder withClientBuilder(com.twitter.finagle.builder.ClientBuilder<Request, Response, Yes, Yes, Yes> clientBuilder) {
 		this.clientBuilder = clientBuilder;
 		return this;
 	}
@@ -146,7 +146,7 @@ public class ResteasyClientBuilder {
 	 *            an arbitrary {@link ResteasyProviderFactory} to use
 	 * @return this (for chaining)
 	 */
-	public ResteasyClientBuilder withProviderFactory(ResteasyProviderFactory providerFactory) {
+	public ClientBuilder withProviderFactory(ResteasyProviderFactory providerFactory) {
 		this.providerFactory = providerFactory;
 		return this;
 	}
@@ -161,14 +161,14 @@ public class ResteasyClientBuilder {
 			this.providerFactory = ServiceUtils.getDefaultProviderFactory();
 		}
 		info(LOG, "creating proxy with interface %s", serviceInterface.getName());
-		Service<Request, Response> service = ClientBuilder.safeBuild(this.clientBuilder);
+		Service<Request, Response> service = com.twitter.finagle.builder.ClientBuilder.safeBuild(this.clientBuilder);
 		this.executor = new FinagleBasedClientExecutor(this.providerFactory, service);
 		
 		return ProxyFactory.create(serviceInterface, DEFAULT_ENDPOINT_URI, executor, this.providerFactory);
 	}
 	
-	public static ResteasyClientBuilder get() {
-		return new ResteasyClientBuilder();
+	public static ClientBuilder get() {
+		return new ClientBuilder();
 	}
 
 }

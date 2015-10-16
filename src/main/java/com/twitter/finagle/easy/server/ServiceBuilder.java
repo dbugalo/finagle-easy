@@ -33,7 +33,7 @@ import com.twitter.finagle.httpx.Response;
  *
  * @author ed.peters
  */
-public class ResteasyServiceBuilder {
+public class ServiceBuilder {
 
 	/**
 	 * Default set of file-extension-to-MIME-type mappings
@@ -48,7 +48,7 @@ public class ResteasyServiceBuilder {
 	private List<Object> beans;
 	private Executor executor;
 
-	protected ResteasyServiceBuilder() {
+	protected ServiceBuilder() {
 		this.mediaTypes = Maps.newHashMap(DEFAULT_MEDIA_TYPES);
 		this.languages = Maps.newHashMap();
 		this.beans = Lists.newArrayList();
@@ -61,7 +61,7 @@ public class ResteasyServiceBuilder {
 	 *            fixed number of threads for request handling pool
 	 * @return this (for chaining)
 	 */
-	public ResteasyServiceBuilder withThreadPoolSize(int size) {
+	public ServiceBuilder withThreadPoolSize(int size) {
 		return withExecutor(Executors.newFixedThreadPool(size));
 	}
 
@@ -72,7 +72,7 @@ public class ResteasyServiceBuilder {
 	 *            the executor to use
 	 * @return this (for chaining)
 	 */
-	public ResteasyServiceBuilder withExecutor(Executor executor) {
+	public ServiceBuilder withExecutor(Executor executor) {
 		this.executor = executor;
 		return this;
 	}
@@ -89,7 +89,7 @@ public class ResteasyServiceBuilder {
 	 *             if the supplied bean isn't a root resource, as reported by
 	 *             {@link GetRestful}
 	 */
-	public ResteasyServiceBuilder withEndpoint(Object endpoint) {
+	public ServiceBuilder withEndpoint(Object endpoint) {
 		Preconditions.checkNotNull(endpoint, "endpoint");
 		Preconditions.checkArgument(GetRestful.isRootResource(endpoint.getClass()), "endpoint is not a root resource");
 		this.beans.add(endpoint);
@@ -100,7 +100,7 @@ public class ResteasyServiceBuilder {
 	 * Same as calling {@link #withEndpoint(Object)} on each bean in the
 	 * supplied list
 	 */
-	public ResteasyServiceBuilder withEndpoints(Object... beans) {
+	public ServiceBuilder withEndpoints(Object... beans) {
 		for (Object bean : beans) {
 			withEndpoint(bean);
 		}
@@ -111,7 +111,7 @@ public class ResteasyServiceBuilder {
 	 * Same as calling {@link #withEndpoint(Object)} on each bean in the
 	 * supplied collection
 	 */
-	public ResteasyServiceBuilder withEndpoints(Collection<?> beans) {
+	public ServiceBuilder withEndpoints(Collection<?> beans) {
 		for (Object bean : beans) {
 			withEndpoint(bean);
 		}
@@ -128,7 +128,7 @@ public class ResteasyServiceBuilder {
 	 *            the corresponding "Accept" header to infer for requests ending
 	 *            with that file extension
 	 */
-	public ResteasyServiceBuilder withMediaTypeMapping(String ext, MediaType mediaType) {
+	public ServiceBuilder withMediaTypeMapping(String ext, MediaType mediaType) {
 		this.mediaTypes.put(ext, mediaType);
 		return this;
 	}
@@ -143,7 +143,7 @@ public class ResteasyServiceBuilder {
 	 *            the corresponding "Accept-Language" header to infer for
 	 *            requests ending with that extension (e.g. "en")
 	 */
-	public ResteasyServiceBuilder withLanguageMapping(String ext, String lang) {
+	public ServiceBuilder withLanguageMapping(String ext, String lang) {
 		this.languages.put(ext, lang);
 		return this;
 	}
@@ -173,8 +173,8 @@ public class ResteasyServiceBuilder {
 		return new ResteasyFinagleService(dispatcher, executor);
 	}
 
-	public static ResteasyServiceBuilder get() {
-		return new ResteasyServiceBuilder();
+	public static ServiceBuilder get() {
+		return new ServiceBuilder();
 	}
 
 }

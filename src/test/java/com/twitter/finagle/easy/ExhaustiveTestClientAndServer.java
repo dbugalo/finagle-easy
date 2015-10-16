@@ -4,8 +4,8 @@ import com.twitter.finagle.Service;
 import com.twitter.finagle.builder.Server;
 import com.twitter.finagle.builder.ServerBuilder;
 import com.twitter.finagle.builder.ServerConfig.Yes;
-import com.twitter.finagle.easy.client.ResteasyClientBuilder;
-import com.twitter.finagle.easy.server.ResteasyServiceBuilder;
+import com.twitter.finagle.easy.client.ClientBuilder;
+import com.twitter.finagle.easy.server.ServiceBuilder;
 import com.twitter.finagle.httpx.Http;
 import com.twitter.finagle.httpx.Request;
 import com.twitter.finagle.httpx.Response;
@@ -56,7 +56,7 @@ public class ExhaustiveTestClientAndServer {
     public void performExhaustiveTest() {
 
         this.impl = new ExampleServiceImpl();
-        this.service = ResteasyServiceBuilder.get()
+        this.service = ServiceBuilder.get()
             .withEndpoint(impl)
             .build();
 
@@ -69,7 +69,7 @@ public class ExhaustiveTestClientAndServer {
         }
         assertNotNull("couldn't allocate server", server);
 
-        this.client = ResteasyClientBuilder.get()
+        this.client = ClientBuilder.get()
                 .withHttpClient("localhost", this.port)
                 .build(ExampleService.class);
 

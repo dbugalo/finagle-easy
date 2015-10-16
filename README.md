@@ -35,47 +35,45 @@ public interface ExampleService {
 Here's a simple server example using this package:
 
 ```
-import com.twitter.finagle.easy.server.ResteasyServiceBuilder;
+import com.twitter.finagle.Httpx;
+import com.twitter.finagle.ListeningServer;
 import com.twitter.finagle.Service;
-import com.twitter.finagle.builder.Server;
-import com.twitter.finagle.builder.ServerBuilder;
-import com.twitter.finagle.http.Http;
-
-import java.net.InetSocketAddress;
+import com.twitter.finagle.easy.server.ServiceBuilder;
+import com.twitter.finagle.httpx.Request;
+import com.twitter.finagle.httpx.Response;
+import com.twitter.util.Await;
 
 public class ExampleServer implements ExampleService {
 
-    @Override
-    public String getGreeting() {
-        return "Hello, World!";
-    }
+	@Override
+	public String getGreeting(String a) {
+		return "Hello, World!" + a;
+	}
 
-    public static void main(String [] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 
-        Service service = ResteasyServiceBuilder.get()
-                .withEndpoint(new ExampleServer())
-                .build();
+		Service<Request, Response> service = ServiceBuilder.get().withThreadPoolSize(100)
+				.withEndpoint(new ExampleServer()).build();
 
 		ListeningServer server = Httpx.serve(":10000", service);
+		
 		Await.ready(server);
-
-        // ... profit!
-
-    }
+	}
 
 }
+
 ```
 
 and here's an example of a client for that service:
 
 ```
-import com.twitter.finagle.easy.client.ResteasyClientBuilder;
+import com.twitter.finagle.easy.client.ClientBuilder;
 
 public class ExampleClient {
 
     public static void main(String [] args) {
 
-        ExampleService service = ResteasyClientBuilder.get()
+        ExampleService service = ClientBuilder.get()
                 .withHttpClient("localhost", 10000)
                 .build(ExampleService.class);
 
