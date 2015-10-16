@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.jboss.netty.buffer.ChannelBufferInputStream;
-import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.resteasy.client.core.BaseClientResponse;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
@@ -17,6 +16,7 @@ import com.twitter.finagle.httpx.Response;
  * {@link org.jboss.netty.handler.codec.http.HttpResponse}.  Used when
  * we're making outbound calls via a Resteasy proxy, on the inbound leg.
  *
+ * @author denis.rangel
  * @author ed.peters
  * @param <T> object type of the response content
  */

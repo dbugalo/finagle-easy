@@ -33,6 +33,7 @@ import com.twitter.util.Future;
  * other tests)
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public class TestResteasyFinagleService {
 
@@ -125,7 +126,8 @@ public class TestResteasyFinagleService {
 	@SuppressWarnings("deprecation")
 	protected void invoke(final Runnable runner) {
 		assertNotNull("no input netty message", this.nettyRequest);
-		Service<Request, Response> service = new ResteasyFinagleService(new MockDispatcher(runner), Executors.newSingleThreadExecutor());
+		Service<Request, Response> service = new ResteasyFinagleService(new MockDispatcher(runner),
+				Executors.newSingleThreadExecutor());
 		Future<Response> future = service.apply(this.nettyRequest);
 		this.nettyResponse = future.get();
 	}

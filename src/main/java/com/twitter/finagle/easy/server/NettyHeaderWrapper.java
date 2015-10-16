@@ -18,6 +18,7 @@ import java.util.Set;
  * the correct location.
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public class NettyHeaderWrapper implements MultivaluedMap<String, Object> {
 

@@ -13,6 +13,7 @@ import com.twitter.util.Await;
 /**
  * Example of creating a server
  *
+ * @author ed.peters
  * @author denis.rangel
  */
 public class ExampleServer implements ExampleService {

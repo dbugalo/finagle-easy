@@ -30,6 +30,16 @@
 			<name>Denis Rangel</name>
 			<email>denis.rangel@gmail.com</email>
 		</developer>
+		<developer>
+			<name>Ed Peters</name>
+			<email>ed.peters@opower.com</email>
+			<organization>opower</organization>
+		</developer>
+		<developer>
+			<name>Jeff Kolesky</name>
+			<email>jeff@opower.com</email>
+			<organization>opower</organization>
+		</developer>
 	</developers>
 
 	<properties>

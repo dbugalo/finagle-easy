@@ -32,6 +32,7 @@ import com.twitter.finagle.zookeeper.ZookeeperServerSetCluster;
  * Fluent-style builder for clients that wrap a Finagle client with an annotated
  * service interface via Resteasy.
  *
+ * @author denis.rangel
  * @author ed.peters
  * @author jeff
  */

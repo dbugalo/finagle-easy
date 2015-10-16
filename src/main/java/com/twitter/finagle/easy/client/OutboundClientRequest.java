@@ -22,6 +22,7 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
  * making outbound calls via a Resteasy proxy, on the outbound leg.
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public class OutboundClientRequest extends DefaultHttpRequest {
 

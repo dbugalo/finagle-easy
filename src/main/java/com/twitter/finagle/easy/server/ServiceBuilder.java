@@ -32,6 +32,7 @@ import com.twitter.finagle.httpx.Response;
  * TODO what other aspects of RestEASY do we want to be able to customize?
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public class ServiceBuilder {
 

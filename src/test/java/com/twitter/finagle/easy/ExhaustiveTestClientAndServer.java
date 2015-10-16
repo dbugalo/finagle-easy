@@ -31,6 +31,7 @@ import static org.junit.Assert.assertNotNull;
  * Creates a client and a server and sends data back and forth.
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public class ExhaustiveTestClientAndServer {
 

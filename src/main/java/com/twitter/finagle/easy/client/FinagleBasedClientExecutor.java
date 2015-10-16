@@ -27,6 +27,7 @@ import com.twitter.finagle.httpx.Response;
  * TODO is there any benefit to delaying the call to Future.get?
  * TODO can we be more efficent about the conversion of ChannelBuffers to bytes and back?
  *
+ * @author denis.rangel
  * @author ed.peters
  */
 public class FinagleBasedClientExecutor implements ClientExecutor, Closeable {

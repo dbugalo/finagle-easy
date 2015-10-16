@@ -20,6 +20,7 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.OK;
  * Netty {@link org.jboss.netty.handler.codec.http.HttpResponse}.
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public class OutboundServiceResponse implements org.jboss.resteasy.spi.HttpResponse {
 

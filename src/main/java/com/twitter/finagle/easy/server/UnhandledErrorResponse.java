@@ -16,6 +16,7 @@ import org.jboss.netty.handler.codec.http.HttpVersion;
  * normally, like failures inside Resteasy itself.
  *
  * @author ed.peters
+ * @author denis.rangel
  *
  * @see "http://docs.jboss.org/resteasy/2.0.0.GA/userguide/html/ExceptionHandling.html"
  */

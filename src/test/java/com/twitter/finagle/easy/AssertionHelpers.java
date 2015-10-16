@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
  * Helpers for different types of assertions that are common across these tests
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public final class AssertionHelpers {
 

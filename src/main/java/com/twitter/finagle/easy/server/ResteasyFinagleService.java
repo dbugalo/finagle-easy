@@ -23,8 +23,9 @@ import com.twitter.util.Promise;
  * Implements the Finagle {@link com.twitter.finagle.Service} interface by
  * wrapping inbound requests and passing them into a RestEASY
  * {@link org.jboss.resteasy.core.Dispatcher}.
- *
+ * 
  * @author ed.peters
+ * @author denis.rangel
  */
 public class ResteasyFinagleService extends Service<Request, Response> {
 

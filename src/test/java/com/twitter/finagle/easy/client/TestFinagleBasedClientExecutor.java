@@ -27,6 +27,7 @@ import com.twitter.util.Future;
  * tests)
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public class TestFinagleBasedClientExecutor {
 

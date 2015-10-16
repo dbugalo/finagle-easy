@@ -32,6 +32,7 @@ import com.twitter.finagle.httpx.Request;
  * Currently doesn't support asynchronous processing.
  *
  * @author ed.peters
+ * @author denis.rangel
  *
  * @see "http://bill.burkecentral.com/2008/10/09/jax-rs-asynch-http/"
  */

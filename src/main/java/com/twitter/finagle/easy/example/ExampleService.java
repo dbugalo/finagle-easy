@@ -9,6 +9,7 @@ import javax.ws.rs.QueryParam;
  * Sample of a JAX-RS annotated service interface
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 @Path("/greeting")
 public interface ExampleService {

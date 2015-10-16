@@ -25,6 +25,7 @@ import com.twitter.finagle.httpx.Request;
  * Tests for the mapping of Netty requests to Resteasy.
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public class TestInboundServiceRequest {
 

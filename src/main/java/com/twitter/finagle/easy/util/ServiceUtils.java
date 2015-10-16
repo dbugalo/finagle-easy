@@ -32,6 +32,7 @@ import com.google.common.collect.Lists;
  * and Resteasy (JAX-RS) structures.
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public final class ServiceUtils {
 

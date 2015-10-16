@@ -5,6 +5,7 @@ import com.twitter.finagle.easy.client.ClientBuilder;
 /**
  * Example of creating a client
  *
+ * @author ed.peters
  * @author denis.rangel
  */
 public final class ExampleClient {

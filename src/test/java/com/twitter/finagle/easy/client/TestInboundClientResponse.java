@@ -15,14 +15,12 @@ import javax.ws.rs.core.Response.Status;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponse;
-import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.twitter.finagle.easy.client.InboundClientResponse;
 import com.twitter.finagle.easy.util.ServiceUtils;
 import com.twitter.finagle.httpx.Response;
 
@@ -30,6 +28,7 @@ import com.twitter.finagle.httpx.Response;
  * Tests Netty-to-Resteasy translation
  *
  * @author ed.peters
+ * @author denis.rangel
  */
 public class TestInboundClientResponse {
 
