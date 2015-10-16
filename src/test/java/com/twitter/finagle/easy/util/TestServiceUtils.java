@@ -33,6 +33,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.twitter.finagle.easy.util.ServiceUtils;
+import com.twitter.finagle.httpx.Method;
 import com.twitter.finagle.httpx.Request;
 
 /**
@@ -67,7 +68,7 @@ public class TestServiceUtils {
                 ACCEPT, APPLICATION_JSON,
                 ACCEPT_LANGUAGE, "en");
 
-        Request request = newRequest(GET, "/foo");
+        Request request = Request.apply(Method.apply("GET"), "/foo");
         request.setContentType(APPLICATION_JSON, UTF8);
         for (String key : expected.keySet()) {
             request.headers().add(key, expected.get(key));
@@ -194,25 +195,4 @@ public class TestServiceUtils {
             fail(key + " is not mutable: " + e.toString());
         }
     }
-    
-    private Request newRequest(final HttpMethod method, final String uri) {
-		final Request req = new Request() {
-
-			private org.jboss.netty.handler.codec.http.HttpRequest httpRequest = new DefaultHttpRequest(HTTP_1_1,
-					method, uri);
-
-			@Override
-			public org.jboss.netty.handler.codec.http.HttpRequest httpRequest() {
-				return httpRequest;
-			}
-
-			@Override
-			public InetSocketAddress remoteSocketAddress() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-
-		return req;
-	}
 }
