@@ -15,15 +15,14 @@ import java.util.concurrent.Executors;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
-import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.resteasy.core.SynchronousDispatcher;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.HttpResponse;
 import org.junit.Test;
 
 import com.twitter.finagle.Service;
-import com.twitter.finagle.easy.server.ResteasyFinagleService;
 import com.twitter.finagle.easy.util.ServiceUtils;
+import com.twitter.finagle.httpx.Method;
 import com.twitter.finagle.httpx.Request;
 import com.twitter.finagle.httpx.Response;
 import com.twitter.util.Future;
@@ -49,7 +48,7 @@ public class TestResteasyFinagleService {
 	@Test
 	public void testHappyPath() throws Exception {
 		final byte[] expectedContent = UUID.randomUUID().toString().getBytes();
-		this.nettyRequest = newRequest(GET, "/foo");
+		this.nettyRequest = Request.apply(Method.apply("GET"), "/foo");
 
 		this.nettyRequest.headers().set("single", "a");
 		invoke(new Runnable() {
@@ -100,7 +99,7 @@ public class TestResteasyFinagleService {
 	@Test
 	public void testUnhandledDispatchError() throws Exception {
 		final RuntimeException error = new RuntimeException("expected error");
-		this.nettyRequest = newRequest(GET, "/foo");
+		this.nettyRequest = Request.apply(Method.apply("GET"), "/foo");
 		this.nettyRequest.headers().set("single", "a");
 		invoke(new Runnable() {
 			@Override
@@ -151,27 +150,6 @@ public class TestResteasyFinagleService {
 			this.runner.run();
 		}
 
-	}
-
-	private Request newRequest(final HttpMethod method, final String uri) {
-		final Request req = new Request() {
-
-			private org.jboss.netty.handler.codec.http.HttpRequest httpRequest = new DefaultHttpRequest(HTTP_1_1,
-					method, uri);
-
-			@Override
-			public org.jboss.netty.handler.codec.http.HttpRequest httpRequest() {
-				return httpRequest;
-			}
-
-			@Override
-			public InetSocketAddress remoteSocketAddress() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-
-		return req;
 	}
 
 	private Request newRequest(final DefaultHttpRequest httpRequest) {

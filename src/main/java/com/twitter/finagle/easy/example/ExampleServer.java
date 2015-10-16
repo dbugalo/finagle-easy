@@ -4,6 +4,7 @@ import com.twitter.finagle.Httpx;
 import com.twitter.finagle.ListeningServer;
 import com.twitter.finagle.Service;
 import com.twitter.finagle.easy.server.ResteasyServiceBuilder;
+import com.twitter.finagle.httpx.Method;
 import com.twitter.finagle.httpx.Request;
 import com.twitter.finagle.httpx.Response;
 import com.twitter.ostrich.admin.AdminHttpService;
@@ -32,7 +33,7 @@ public class ExampleServer implements ExampleService {
 		RuntimeEnvironment runtime = new RuntimeEnvironment("");
 		AdminHttpService admin = new AdminHttpService(8000, 0, runtime);
 		admin.start();
-
+		
 		Await.ready(server);
 	}
 
