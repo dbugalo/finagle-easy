@@ -35,7 +35,7 @@ public interface ExampleService {
 Here's a simple server example using this package:
 
 ```
-import com.opower.finagle.resteasy.server.ResteasyServiceBuilder;
+import com.twitter.finagle.easy.server.ResteasyServiceBuilder;
 import com.twitter.finagle.Service;
 import com.twitter.finagle.builder.Server;
 import com.twitter.finagle.builder.ServerBuilder;
@@ -73,7 +73,7 @@ public class ExampleServer implements ExampleService {
 and here's an example of a client for that service:
 
 ```
-import com.opower.finagle.resteasy.client.ResteasyClientBuilder;
+import com.twitter.finagle.easy.client.ResteasyClientBuilder;
 
 public class ExampleClient {
 
