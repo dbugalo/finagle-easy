@@ -129,7 +129,7 @@ public class TestOutboundClientRequest {
         factory.registerProvider(CustomWriter.class);
 
         String suppliedContent = UUID.randomUUID().toString();
-        byte [] expectedContent = writer.toString().getBytes();
+        byte [] expectedContent = CustomWriter.instance.toString().getBytes();
 
         ClientRequest resteasyRequest = new ClientRequest(
                 new ResteasyUriBuilder().path("/foo/bar"),
@@ -148,7 +148,7 @@ public class TestOutboundClientRequest {
                 CONTENT_LENGTH, expectedContent.length
         ));
         
-        //assertContentEquals(nettyRequest.getContent(), expectedContent);
+        assertContentEquals(nettyRequest.getContent(), expectedContent);
     }
 
     protected void assertRequestBasics(HttpRequest nettyRequest,
@@ -163,7 +163,13 @@ public class TestOutboundClientRequest {
      * Custom writer that modifies body content and message header
      */
     public static class CustomWriter implements MessageBodyWriter<Object> {
-
+    	
+    	private static CustomWriter instance;
+    	
+    	public CustomWriter() {
+    		CustomWriter.instance = this;
+		}
+    	
         @Override
         public long getSize(
                 Object object,
