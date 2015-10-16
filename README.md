@@ -52,8 +52,9 @@ public class ExampleServer implements ExampleService {
 
 	public static void main(String[] args) throws Exception {
 
-		Service<Request, Response> service = ServiceBuilder.get().withThreadPoolSize(100)
-				.withEndpoint(new ExampleServer()).build();
+		Service<Request, Response> service = ServiceBuilder.get()
+				.withEndpoint(new ExampleServer())
+				.build();
 
 		ListeningServer server = Httpx.serve(":10000", service);
 		
