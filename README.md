@@ -56,12 +56,8 @@ public class ExampleServer implements ExampleService {
                 .withEndpoint(new ExampleServer())
                 .build();
 
-        ServerBuilder builder = ServerBuilder.get()
-                .name("ExampleServer")
-                .codec(Http.get())
-                .bindTo(new InetSocketAddress("localhost", 10000));
-
-        Server server = ServerBuilder.safeBuild(service, builder);
+		ListeningServer server = Httpx.serve(":10000", service);
+		Await.ready(server);
 
         // ... profit!
 

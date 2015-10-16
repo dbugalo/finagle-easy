@@ -1,13 +1,9 @@
 package com.twitter.finagle.easy.example;
 
-import java.net.InetSocketAddress;
-
+import com.twitter.finagle.Httpx;
+import com.twitter.finagle.ListeningServer;
 import com.twitter.finagle.Service;
-import com.twitter.finagle.builder.Server;
-import com.twitter.finagle.builder.ServerBuilder;
-import com.twitter.finagle.builder.ServerConfig.Yes;
 import com.twitter.finagle.easy.server.ResteasyServiceBuilder;
-import com.twitter.finagle.httpx.Http;
 import com.twitter.finagle.httpx.Request;
 import com.twitter.finagle.httpx.Response;
 import com.twitter.ostrich.admin.AdminHttpService;
@@ -21,33 +17,23 @@ import com.twitter.util.Await;
  */
 public class ExampleServer implements ExampleService {
 
-    @Override
-    public String getGreeting(String a) {
-        return "Hello, World!" + a;
-    }
+	@Override
+	public String getGreeting(String a) {
+		return "Hello, World!" + a;
+	}
 
-    public static void main(String [] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 
-        Service<Request, Response> service = ResteasyServiceBuilder.get()
-        		.withThreadPoolSize(100)
-                .withEndpoint(new ExampleServer())
-                .build();
+		Service<Request, Response> service = ResteasyServiceBuilder.get().withThreadPoolSize(100)
+				.withEndpoint(new ExampleServer()).build();
 
-        ServerBuilder<Request, Response, Yes, Yes, Yes> builder = ServerBuilder.get()
-                .name("ExampleServer")
-                .codec(Http.get())
-                .bindTo(new InetSocketAddress("localhost", 10000));
+		ListeningServer server = Httpx.serve(":10000", service);
 
-        Server server = ServerBuilder.safeBuild(service, builder);
+		RuntimeEnvironment runtime = new RuntimeEnvironment("");
+		AdminHttpService admin = new AdminHttpService(8000, 0, runtime);
+		admin.start();
 
-        RuntimeEnvironment runtime = new RuntimeEnvironment("");
-        AdminHttpService admin = new AdminHttpService(8000, 0, runtime);
-        admin.start();
-        
-        // from here your application can continue to do other work.
-        // the Server object has a background non-daemon thread that
-        // will keep the JVM alive until you call close().
-        Await.ready(server);
-    }
+		Await.ready(server);
+	}
 
 }
