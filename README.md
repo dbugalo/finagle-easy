@@ -1,5 +1,8 @@
 # What is this?
 
+[![Build Status](https://travis-ci.org/dbugalo/finagle-easy.png)](https://travis-ci.org/dbugalo/finagle-easy)
+
+
 [Resteasy](http://www.jboss.org/resteasy) is JBoss's implementation of the 
 JAX-RS standard, which in general makes writing REST services a matter of 
 slapping some annotations on your code.  Unfortunately, it's built around
