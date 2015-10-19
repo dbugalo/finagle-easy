@@ -1,6 +1,5 @@
 package com.twitter.finagle.easy.server;
 
-import static com.twitter.finagle.easy.util.LoggingUtils.info;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.Map.Entry;
@@ -48,9 +47,9 @@ public class ResteasyFinagleService extends Service<Request, Response> {
      */
     public Future<Response> apply(Request request) {
         Preconditions.checkNotNull(request, "request");
-        info(LOG, "inbound request %s %s",
+        LOG.info(String.format("inbound request %s %s",
                 request.getMethod().getName(),
-                request.getUri());
+                request.getUri()));
         Promise<Response> promise = new Promise<Response>();
         this.executor.execute(new ResponseWorker(request, promise));
         
@@ -80,14 +79,14 @@ public class ResteasyFinagleService extends Service<Request, Response> {
                 nettyResponse = computeResponse(version);
             }
             catch (final Exception e) {
-                info(LOG, e, "unhandled error creating HTTP response");
+            	LOG.info("unhandled error creating HTTP response", e);
                 nettyResponse = new Response() {
         			public HttpResponse httpResponse() {  
         				return new UnhandledErrorResponse(version, e);
         			}
                 };
             }
-            info(LOG, "outbound response %s", nettyResponse.getStatus());
+            LOG.info(String.format("outbound response %s", nettyResponse.getStatus()));
             this.promise.setValue(nettyResponse);
         }
 

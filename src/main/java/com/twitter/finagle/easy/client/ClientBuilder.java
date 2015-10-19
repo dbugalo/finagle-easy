@@ -1,7 +1,6 @@
 package com.twitter.finagle.easy.client;
 
 import static com.twitter.common.quantity.Time.SECONDS;
-import static com.twitter.finagle.easy.util.LoggingUtils.info;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -95,7 +94,7 @@ public class ClientBuilder {
 	public ClientBuilder withHttpClient(String host, int port) {
 		Preconditions.checkNotNull(host, "host");
 		Preconditions.checkArgument(port > 0, "invalid port " + port);
-		info(LOG, "new HTTP client for %s:%s", host, port);
+		LOG.info(String.format("new HTTP client for %s:%s", host, port));
 		
 		com.twitter.finagle.builder.ClientBuilder<Request, Response, Yes, Yes, Yes> builder = com.twitter.finagle.builder.ClientBuilder.get().codec(Http.get()).hostConnectionLimit(DEFAULT_HOST_CONNECTIONS)
 				.hosts(new InetSocketAddress(host, port));
@@ -124,7 +123,7 @@ public class ClientBuilder {
 	public ClientBuilder withZookeeperClient(String zkHost, int zkPort, String zkLocator) {
 		Preconditions.checkNotNull(zkHost, "zkHost");
 		Preconditions.checkNotNull(zkLocator, "zkLocator");
-		info(LOG, "new Zookeeper client for %s:%s", zkHost, zkPort, zkLocator);
+		LOG.info(String.format("new Zookeeper client for %s:%s", zkHost, zkPort, zkLocator));
 		InetSocketAddress addr = new InetSocketAddress(zkHost, zkPort);
 		ServerSet serverSet = new ServerSetImpl(new ZooKeeperClient(DEFAULT_ZK_TIMEOUT, addr), zkLocator);
 		com.twitter.finagle.builder.ClientBuilder<Request, Response, Yes, Yes, Yes> builder = com.twitter.finagle.builder.ClientBuilder.get().codec(Http.get()).hostConnectionLimit(DEFAULT_HOST_CONNECTIONS)
@@ -161,7 +160,7 @@ public class ClientBuilder {
 		if (this.providerFactory == null) {
 			this.providerFactory = ServiceUtils.getDefaultProviderFactory();
 		}
-		info(LOG, "creating proxy with interface %s", serviceInterface.getName());
+		LOG.info(String.format("creating proxy with interface %s", serviceInterface.getName()));
 		Service<Request, Response> service = com.twitter.finagle.builder.ClientBuilder.safeBuild(this.clientBuilder);
 		this.executor = new FinagleBasedClientExecutor(this.providerFactory, service);
 		
