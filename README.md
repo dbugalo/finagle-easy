@@ -1,7 +1,7 @@
 # What is this?
 
 [![Build Status](https://travis-ci.org/dbugalo/finagle-easy.png)](https://travis-ci.org/dbugalo/finagle-easy)
-
+[![Coverage Status](https://coveralls.io/repos/dbugalo/finagle-easy/badge.svg?branch=master&service=github)](https://coveralls.io/github/dbugalo/finagle-easy?branch=master)
 
 [Resteasy](http://www.jboss.org/resteasy) is JBoss's implementation of the 
 JAX-RS standard, which in general makes writing REST services a matter of 
