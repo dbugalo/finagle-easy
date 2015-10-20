@@ -130,11 +130,11 @@ public class ClientBuilder {
 	 *            the name-service path of the service to connect to
 	 * @return this (for chaining)
 	 */
-	public ClientBuilder withZookeeperClient(String zkHost, int zkPort, String zkLocator) {
+	public ClientBuilder withZookeeperClient(String zkHost, Integer zkPort, String zkLocator) {
 		checkNotNull(zkHost, "zkHost");
 		checkNotNull(zkLocator, "zkLocator");
 		
-		LOG.info(String.format("new Zookeeper client for %s:%s", zkHost, zkPort, zkLocator));
+		LOG.info(String.format("new Zookeeper client for %s:%d %s", zkHost, zkPort, zkLocator));
 		
 		InetSocketAddress addr = new InetSocketAddress(zkHost, zkPort);
 		ServerSet serverSet = new ServerSetImpl(new ZooKeeperClient(DEFAULT_ZK_TIMEOUT, addr), zkLocator);

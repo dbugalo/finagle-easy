@@ -1,6 +1,5 @@
 package com.twitter.finagle.easy.client;
 
-import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.util.Map.Entry;
 
@@ -21,65 +20,57 @@ import com.twitter.finagle.httpx.Response;
 
 /**
  * Implementation of Resteasy {@link org.jboss.resteasy.client.ClientExecutor}
- * interface on top of a Finagle {@link com.twitter.finagle.Service}.  This
+ * interface on top of a Finagle {@link com.twitter.finagle.Service}. This
  * allows us to make outbound calls using a Resteasy proxy.
  *
- * TODO is there any benefit to delaying the call to Future.get?
- * TODO can we be more efficent about the conversion of ChannelBuffers to bytes and back?
+ * TODO is there any benefit to delaying the call to Future.get? TODO can we be
+ * more efficent about the conversion of ChannelBuffers to bytes and back?
  *
  * @author denis.rangel
  * @author ed.peters
  */
-public class FinagleBasedClientExecutor implements ClientExecutor, Closeable {
+public class FinagleBasedClientExecutor implements ClientExecutor {
 
-    private static final Log LOG =
-            LogFactory.getLog(FinagleBasedClientExecutor.class);
+	private static final Log LOG = LogFactory.getLog(FinagleBasedClientExecutor.class);
 
-    private final ResteasyProviderFactory providerFactory;
-    private final Service<Request, Response> finagleService;
+	private final ResteasyProviderFactory providerFactory;
+	private final Service<Request, Response> finagleService;
 
-    public FinagleBasedClientExecutor(
-            ResteasyProviderFactory providerFactory,
-            Service<Request, Response> finagleService) {
-        this.providerFactory = providerFactory;
-        this.finagleService = finagleService;
-    }
+	public FinagleBasedClientExecutor(ResteasyProviderFactory providerFactory,
+			Service<Request, Response> finagleService) {
+		this.providerFactory = providerFactory;
+		this.finagleService = finagleService;
+	}
 
-    @Override
-    public ClientRequest createRequest(UriBuilder uriBuilder) {
-        return new ClientRequest(uriBuilder, this, this.providerFactory);
-    }
+	@Override
+	public ClientRequest createRequest(UriBuilder uriBuilder) {
+		return new ClientRequest(uriBuilder, this, this.providerFactory);
+	}
 
-    @Override
-    public ClientRequest createRequest(String uriTemplate) {
-        return createRequest(new ResteasyUriBuilder().uriTemplate(uriTemplate));
-    }
+	@Override
+	public ClientRequest createRequest(String uriTemplate) {
+		return createRequest(new ResteasyUriBuilder().uriTemplate(uriTemplate));
+	}
 
-    @Override
-    public ClientResponse execute(final ClientRequest resteasyRequest)
-            throws Exception {
+	@Override
+	public ClientResponse execute(final ClientRequest resteasyRequest) throws Exception {
+		LOG.debug(String.format("outbound %s %s", resteasyRequest.getHttpMethod(), resteasyRequest.getUri()));
+		for (String name : resteasyRequest.getHeaders().keySet()) {
+			LOG.debug(String.format("%s: %s", name, resteasyRequest.getHeaders().get(name)));
+		}
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("outbound "
-                    + resteasyRequest.getHttpMethod() + " "
-                    + resteasyRequest.getUri());
-            for (String name : resteasyRequest.getHeaders().keySet()) {
-                LOG.debug(name + ": " + resteasyRequest.getHeaders().get(name));
-            }
-        }
+		Request nettyRequest = null;
+		try {
+			nettyRequest = new Request() {
+				private HttpRequest httpRequest = new OutboundClientRequest(resteasyRequest);
 
-        Request nettyRequest = null;
-        try {
-            nettyRequest = new Request() {
-            	private HttpRequest httpRequest = new OutboundClientRequest(resteasyRequest);
-            	
 				@Override
 				public HttpRequest httpRequest() {
 					try {
 						return httpRequest;
 					} catch (Exception e) {
 					}
-					
+
 					return null;
 				}
 
@@ -88,44 +79,36 @@ public class FinagleBasedClientExecutor implements ClientExecutor, Closeable {
 					// TODO Auto-generated method stub
 					return null;
 				}
-            	
-            };
-        }
-        catch (Exception e) {
-            throw new RuntimeException(
-                    "error converting outbound request (Resteasy --> Netty)", e);
-        }
 
-        Response nettyResponse = null;
-        try {
-            nettyResponse = this.finagleService.apply(nettyRequest).get();
-        }
-        catch (Exception e) {
-            throw new RuntimeException("error invoking Finagle service", e);
-        }
+			};
+		} catch (Exception e) {
+			throw new RuntimeException("error converting outbound request (Resteasy --> Netty)", e);
+		}
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("inbound " + nettyResponse.getStatus());
-            for (Entry<String, String> entry : nettyResponse.headers()) {
-                LOG.debug(entry.getKey() + ": " + entry.getValue());
-            }
-        }
+		Response nettyResponse = null;
+		try {
+			nettyResponse = this.finagleService.apply(nettyRequest).get();
+		} catch (Exception e) {
+			throw new RuntimeException("error invoking Finagle service", e);
+		}
 
-        ClientResponse response = null;
-        try {
-            response = new InboundClientResponse(nettyResponse,
-                    this.providerFactory);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(
-                    "error converting inbound response (Netty --> Resteasy)", e);
-        }
+		LOG.debug(String.format("inbound %s", nettyResponse.getStatus()));
+		for (Entry<String, String> entry : nettyResponse.headers()) {
+			LOG.debug(String.format("%s: %s", entry.getKey(), entry.getValue()));
+		}
 
-        return response;
-    }
+		ClientResponse response = null;
+		try {
+			response = new InboundClientResponse(nettyResponse, this.providerFactory);
+		} catch (Exception e) {
+			throw new RuntimeException("error converting inbound response (Netty --> Resteasy)", e);
+		}
 
-    @Override
-    public void close() {
-    	this.finagleService.close();
-    }
+		return response;
+	}
+
+	@Override
+	public void close() {
+		this.finagleService.close();
+	}
 }
