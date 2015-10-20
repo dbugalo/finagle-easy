@@ -35,122 +35,106 @@ import static org.junit.Assert.assertNotNull;
  */
 public class ExhaustiveTestClientAndServer {
 
-    /*
-     * First port number to start checking when trying to open up a
-     * server for testing
-     */
-    public static final int BASE_PORT = 10000;
+	/*
+	 * First port number to start checking when trying to open up a server for
+	 * testing
+	 */
+	public static final int BASE_PORT = 10000;
 
-    /**
-     * Maximum number of attempts to create a server before the test
-     * will be considered a failure
-     */
-    public static final int MAX_TRIES = 10;
+	/**
+	 * Maximum number of attempts to create a server before the test will be
+	 * considered a failure
+	 */
+	public static final int MAX_TRIES = 10;
 
-    private ExampleServiceImpl impl;
-    private Service<Request, Response> service;
-    private Server server;
-    private ExampleService client;
-    private int port;
+	private ExampleServiceImpl impl;
+	private Service<Request, Response> service;
+	private Server server;
+	private ExampleService client;
+	private int port;
 
-    @Test
-    public void performExhaustiveTest() {
+	@Test
+	public void performExhaustiveTest() throws Exception {
 
-        this.impl = new ExampleServiceImpl();
-        this.service = ServiceBuilder.get()
-            .withEndpoint(impl)
-            .build();
+		this.impl = new ExampleServiceImpl();
+		this.service = ServiceBuilder.get().withEndpoint(impl).build();
 
-        this.port = BASE_PORT;
-        while (this.port < BASE_PORT + MAX_TRIES) {
-            this.server = createServer(this.service, this.port);
-            if (this.server != null) {
-                break;
-            }
-        }
-        assertNotNull("couldn't allocate server", server);
+		this.port = BASE_PORT;
+		while (this.port < BASE_PORT + MAX_TRIES) {
+			this.server = createServer(this.service, this.port);
+			if (this.server != null) {
+				break;
+			}
+		}
+		assertNotNull("couldn't allocate server", server);
 
-        this.client = ClientBuilder.get()
-                .withHttpClient("localhost", this.port)
-                .build(ExampleService.class);
+		ClientBuilder builder = ClientBuilder.get().withHttpClient("localhost", this.port);
+		this.client = builder.build(ExampleService.class);
 
-        for (int i = 0; i < 10; i++) {
-            String [] expectedValue = new String [] {
-                UUID.randomUUID().toString(),
-                UUID.randomUUID().toString()
-            };
-            client.setBar(expectedValue);
-            assertArrayEquals("wrong value passed",
-                    expectedValue,
-                    impl.getBar());
-            assertArrayEquals("wrong value returned",
-                    expectedValue,
-                    client.getBar());
-        }
+		for (int i = 0; i < 10; i++) {
+			String[] expectedValue = new String[] { UUID.randomUUID().toString(), UUID.randomUUID().toString() };
+			client.setBar(expectedValue);
+			assertArrayEquals("wrong value passed", expectedValue, impl.getBar());
+			assertArrayEquals("wrong value returned", expectedValue, client.getBar());
+		}
 
-        server.close(Duration.zero());
-    }
+		builder.close();
+		server.close(Duration.zero());
+	}
 
-    /*
-     * Opens up a new server on an available port by starting at the
-     * BASE_PORT and going up from there.  If this doesn't succeed
-     * after MAX_TRIES, throws an exception.
-     */
-    protected static Server createServer(Service<Request, Response> service, int port) {
-        try {
-            ServerBuilder<Request, Response, Yes, Yes, Yes> builder = ServerBuilder
-                    .get()
-                    .sendBufferSize(256)
-                    .codec(Http.get())
-                    .name("HttpServer")
-                    .bindTo(new InetSocketAddress("localhost", port));
-            return ServerBuilder.safeBuild(service, builder);
-        }
-        catch (ChannelException e) {
-            if (e.getCause() instanceof BindException) {
-                return null;
-            }
-            throw e;
-        }
-    }
+	/*
+	 * Opens up a new server on an available port by starting at the BASE_PORT
+	 * and going up from there. If this doesn't succeed after MAX_TRIES, throws
+	 * an exception.
+	 */
+	protected static Server createServer(Service<Request, Response> service, int port) {
+		try {
+			ServerBuilder<Request, Response, Yes, Yes, Yes> builder = ServerBuilder.get().sendBufferSize(256)
+					.codec(Http.get()).name("HttpServer").bindTo(new InetSocketAddress("localhost", port));
+			return ServerBuilder.safeBuild(service, builder);
+		} catch (ChannelException e) {
+			if (e.getCause() instanceof BindException) {
+				return null;
+			}
+			throw e;
+		}
+	}
 
+	/**
+	 * Simple service interface for the test -- data comes in, data goes out
+	 */
+	@Path("/foo")
+	public interface ExampleService {
 
-    /**
-     * Simple service interface for the test -- data comes in,
-     * data goes out
-     */
-    @Path("/foo")
-    public interface ExampleService {
+		@GET
+		@Path("/bar")
+		@Produces(MediaType.APPLICATION_JSON)
+		String[] getBar();
 
-        @GET
-        @Path("/bar")
-        @Produces(MediaType.APPLICATION_JSON)
-        String [] getBar();
+		@POST
+		@Path("/bar")
+		@Consumes(MediaType.APPLICATION_JSON)
+		void setBar(String[] bar);
 
-        @POST
-        @Path("/bar")
-        @Consumes(MediaType.APPLICATION_JSON)
-        void setBar(String [] bar);
+	}
 
-    }
+	/**
+	 * Implementation of the service
+	 */
+	public static class ExampleServiceImpl implements ExampleService {
 
-    /**
-     * Implementation of the service
-     */
-    public static class ExampleServiceImpl implements ExampleService {
+		private String[] bar;
 
-        private String [] bar;
+		@Override
+		public String[] getBar() {
+			return this.bar;
+		}
 
-        @Override
-        public String [] getBar() {
-            return this.bar;
-        }
+		@Override
+		public void setBar(String[] bar) {
+			this.bar = bar;
+		}
 
-        @Override
-        public void setBar(String [] bar) {
-            this.bar = bar;
-        }
-
-    }
+	}
 
 }
