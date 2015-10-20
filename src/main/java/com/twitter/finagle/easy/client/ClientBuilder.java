@@ -1,5 +1,7 @@
 package com.twitter.finagle.easy.client;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.twitter.common.quantity.Time.SECONDS;
 
 import java.net.InetSocketAddress;
@@ -12,7 +14,6 @@ import org.jboss.resteasy.client.ClientExecutor;
 import org.jboss.resteasy.client.ProxyFactory;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.twitter.common.quantity.Amount;
 import com.twitter.common.quantity.Time;
@@ -72,9 +73,17 @@ public class ClientBuilder {
 	
 	private ClientExecutor executor;
 	
+	private Integer hostConnectionLimit;
+	
 	protected ClientBuilder() {
+		this.hostConnectionLimit = DEFAULT_HOST_CONNECTIONS;
 	}
 
+	public ClientBuilder witHostConnectionLimit(Integer limit) {
+		this.hostConnectionLimit = limit;
+		return this;
+	}
+	
 	/**
 	 * Same as <code>withHttpClient(host, 80)</code>
 	 */
@@ -92,11 +101,11 @@ public class ClientBuilder {
 	 * @return this (for chaining)
 	 */
 	public ClientBuilder withHttpClient(String host, int port) {
-		Preconditions.checkNotNull(host, "host");
-		Preconditions.checkArgument(port > 0, "invalid port " + port);
+		checkNotNull(host, "host");
+		checkArgument(port > 0, "invalid port " + port);
 		LOG.info(String.format("new HTTP client for %s:%s", host, port));
 		
-		com.twitter.finagle.builder.ClientBuilder<Request, Response, Yes, Yes, Yes> builder = com.twitter.finagle.builder.ClientBuilder.get().codec(Http.get()).hostConnectionLimit(DEFAULT_HOST_CONNECTIONS)
+		com.twitter.finagle.builder.ClientBuilder<Request, Response, Yes, Yes, Yes> builder = com.twitter.finagle.builder.ClientBuilder.get().codec(Http.get()).hostConnectionLimit(this.hostConnectionLimit)
 				.hosts(new InetSocketAddress(host, port));
 		return withClientBuilder(builder);
 	}
@@ -121,12 +130,12 @@ public class ClientBuilder {
 	 * @return this (for chaining)
 	 */
 	public ClientBuilder withZookeeperClient(String zkHost, int zkPort, String zkLocator) {
-		Preconditions.checkNotNull(zkHost, "zkHost");
-		Preconditions.checkNotNull(zkLocator, "zkLocator");
+		checkNotNull(zkHost, "zkHost");
+		checkNotNull(zkLocator, "zkLocator");
 		LOG.info(String.format("new Zookeeper client for %s:%s", zkHost, zkPort, zkLocator));
 		InetSocketAddress addr = new InetSocketAddress(zkHost, zkPort);
 		ServerSet serverSet = new ServerSetImpl(new ZooKeeperClient(DEFAULT_ZK_TIMEOUT, addr), zkLocator);
-		com.twitter.finagle.builder.ClientBuilder<Request, Response, Yes, Yes, Yes> builder = com.twitter.finagle.builder.ClientBuilder.get().codec(Http.get()).hostConnectionLimit(DEFAULT_HOST_CONNECTIONS)
+		com.twitter.finagle.builder.ClientBuilder<Request, Response, Yes, Yes, Yes> builder = com.twitter.finagle.builder.ClientBuilder.get().codec(Http.get()).hostConnectionLimit(this.hostConnectionLimit)
 				.cluster(new ZookeeperServerSetCluster(serverSet));
 		return withClientBuilder(builder);
 	}
@@ -156,7 +165,7 @@ public class ClientBuilder {
 	}
 	
 	public <T> T build(Class<T> serviceInterface) {
-		Preconditions.checkNotNull(this.clientBuilder, "clientBuilder");
+		checkNotNull(this.clientBuilder, "clientBuilder");
 		if (this.providerFactory == null) {
 			this.providerFactory = ServiceUtils.getDefaultProviderFactory();
 		}

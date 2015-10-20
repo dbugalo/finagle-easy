@@ -1,5 +1,8 @@
 package com.twitter.finagle.easy.server;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -14,13 +17,11 @@ import org.jboss.resteasy.core.SynchronousDispatcher;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.resteasy.util.GetRestful;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.twitter.finagle.Service;
 import com.twitter.finagle.easy.util.ServiceUtils;
-//import org.jboss.netty.handler.codec.http.HttpRequest;
 import com.twitter.finagle.httpx.Request;
 import com.twitter.finagle.httpx.Response;
 
@@ -53,6 +54,8 @@ public class ServiceBuilder {
 		this.mediaTypes = Maps.newHashMap(DEFAULT_MEDIA_TYPES);
 		this.languages = Maps.newHashMap();
 		this.beans = Lists.newArrayList();
+		this.providerFactory = ServiceUtils.getDefaultProviderFactory();
+		this.executor = Executors.newSingleThreadExecutor();
 	}
 
 	/**
@@ -91,8 +94,8 @@ public class ServiceBuilder {
 	 *             {@link GetRestful}
 	 */
 	public ServiceBuilder withEndpoint(Object endpoint) {
-		Preconditions.checkNotNull(endpoint, "endpoint");
-		Preconditions.checkArgument(GetRestful.isRootResource(endpoint.getClass()), "endpoint is not a root resource");
+		checkNotNull(endpoint, "endpoint is null");
+		checkArgument(GetRestful.isRootResource(endpoint.getClass()), "endpoint is not a root resource");
 		this.beans.add(endpoint);
 		return this;
 	}
@@ -152,19 +155,12 @@ public class ServiceBuilder {
 	/**
 	 * @return a new service
 	 */
-	public Service<Request, Response> build() {
-		if (this.providerFactory == null) {
-			this.providerFactory = ServiceUtils.getDefaultProviderFactory();
-		}
-		if (this.executor == null) {
-			this.executor = Executors.newSingleThreadExecutor();
-		}
-		
+	public Service<Request, Response> build() {		
 		Dispatcher dispatcher = new SynchronousDispatcher(this.providerFactory);
 
 		AcceptHeaderByFileSuffixFilter suffixNegotiationFilter = new AcceptHeaderByFileSuffixFilter();
-		suffixNegotiationFilter.setMediaTypeMappings(DEFAULT_MEDIA_TYPES);
-        suffixNegotiationFilter.setLanguageMappings(languages);
+		suffixNegotiationFilter.setMediaTypeMappings(this.mediaTypes);
+        suffixNegotiationFilter.setLanguageMappings(this.languages);
 		providerFactory.getContainerRequestFilterRegistry().registerSingleton(suffixNegotiationFilter);
 
 		for (Object bean : this.beans) {

@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 import javax.ws.rs.core.MediaType;
@@ -108,7 +109,6 @@ public class TestOutboundClientRequest {
 
 	@Test
 	public void testPostWithCustomProvider() throws Exception {
-		CustomWriter writer = new CustomWriter();
 		ResteasyProviderFactory factory = new ResteasyProviderFactory();
 		factory.registerProvider(CustomWriter.class);
 
