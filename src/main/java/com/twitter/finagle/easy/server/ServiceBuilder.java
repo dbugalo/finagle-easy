@@ -155,7 +155,7 @@ public class ServiceBuilder {
 	/**
 	 * @return a new service
 	 */
-	public Service<Request, Response> build() {		
+	public Service<Request, Response> build() {
 		Dispatcher dispatcher = new SynchronousDispatcher(this.providerFactory);
 
 		AcceptHeaderByFileSuffixFilter suffixNegotiationFilter = new AcceptHeaderByFileSuffixFilter();

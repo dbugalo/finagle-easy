@@ -16,7 +16,7 @@ This project bridges the two, allowing you to write REST services as
 Java-annotated classes, and serve them through Finagle to create lightweight
 services without having to bundle a web container.
 
-Fork from https://github.com/opower/finagle-resteasy
+Fork from [finagle-resteasy](https://github.com/opower/finagle-resteasy)
 
 # Tell me more!
 
