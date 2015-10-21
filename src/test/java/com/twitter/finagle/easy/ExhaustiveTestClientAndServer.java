@@ -68,7 +68,7 @@ public class ExhaustiveTestClientAndServer {
 		}
 		assertNotNull("couldn't allocate server", server);
 
-		ClientBuilder builder = ClientBuilder.get().withHttpClient("localhost", this.port);
+		ClientBuilder builder = ClientBuilder.get().withService("localhost:" + this.port);
 		this.client = builder.build(ExampleService.class);
 
 		for (int i = 0; i < 10; i++) {

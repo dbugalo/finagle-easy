@@ -8,7 +8,7 @@
 	<description>Implementation of the Resteasy SPI on top of Finagle</description>
 	<groupId>com.twitter</groupId>
 	<artifactId>finagle-easy</artifactId>
-	<version>1.0.1-pb-SNAPSHOT</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<url>https://github.com/dbugalo/finagle-easy</url>
 
 	<licenses>
@@ -100,61 +100,11 @@
 			<version>${finagle-version}</version>
 		</dependency>
 
-		<!-- finagle-serversets needs Thrift through a transitive dependency on 
-			com.twitter.common.zookeeper. Be sure we use the one that is compatible with 
-			the version of finagle we want to use. -->
-		<dependency>
-			<groupId>com.twitter</groupId>
-			<artifactId>finagle-thrift_2.11</artifactId>
-			<version>${finagle-version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.twitter</groupId>
-			<artifactId>finagle-ostrich4_2.11</artifactId>
-			<version>${finagle-version}</version>
-		</dependency>
-
-		<!-- finagle-serversets depends on the following hierarchy: 1) com.twitter:finagle-serversets_2.9.1:jar:3.0.0 
-			2) com.twitter.common.zookeeper:server-set:jar:0.0.5 3) com.twitter.common:service-thrift:jar:0.0.22 
-			4) com.twitter:util:jar:1.8.18 com.twitter:util:1.8.18 is actually a POM, 
-			not a jar. service-thrift:0.0.23 correctly omits it, so depend on that version 
-			instead, but be sure that it does not bring in bad versions of finagle -->
-		<dependency>
-			<groupId>com.twitter.common</groupId>
-			<artifactId>service-thrift</artifactId>
-			<version>0.0.23</version>
-		</dependency>
-
 		<!-- The version needed by zookeeper server-sets -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>19.0-rc2</version>
-		</dependency>
-
-		<!-- Use the most recent version of server-sets, as opposed to an old one 
-			Finagle depends on -->
-		<dependency>
-			<groupId>com.twitter.common.zookeeper</groupId>
-			<artifactId>server-set</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-
-		<!-- Use the most recent version of group, as opposed to an old one Finagle 
-			depends on -->
-		<dependency>
-			<groupId>com.twitter.common.zookeeper</groupId>
-			<artifactId>group</artifactId>
-			<version>0.0.90</version>
-		</dependency>
-
-		<!-- Use the most recent version of client, as opposed to an old one Finagle 
-			depends on -->
-		<dependency>
-			<groupId>com.twitter.common.zookeeper</groupId>
-			<artifactId>client</artifactId>
-			<version>0.0.79</version>
 		</dependency>
 
 		<dependency>

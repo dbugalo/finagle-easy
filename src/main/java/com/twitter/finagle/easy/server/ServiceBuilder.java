@@ -2,6 +2,7 @@ package com.twitter.finagle.easy.server;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.twitter.common.quantity.Time.SECONDS;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.concurrent.Executors;
 
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.core.AcceptHeaderByFileSuffixFilter;
 import org.jboss.resteasy.core.AsynchronousDispatcher;
 import org.jboss.resteasy.core.Dispatcher;
@@ -20,6 +23,8 @@ import org.jboss.resteasy.util.GetRestful;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
 import com.twitter.finagle.Service;
 import com.twitter.finagle.easy.util.ServiceUtils;
 import com.twitter.finagle.httpx.Request;
@@ -37,6 +42,13 @@ import com.twitter.finagle.httpx.Response;
  */
 public class ServiceBuilder {
 
+	/**
+	 * Default timeout for Zookeeper connections
+	 */
+	public static final Amount<Integer, Time> DEFAULT_ZK_TIMEOUT = Amount.of(1, SECONDS);
+	
+	private static final Log LOG = LogFactory.getLog(ServiceBuilder.class);
+	
 	/**
 	 * Default set of file-extension-to-MIME-type mappings
 	 */
@@ -122,6 +134,7 @@ public class ServiceBuilder {
 		return this;
 	}
 
+	
 	/**
 	 * Adds a new file-extension-to-MIME-type mapping to the default set for
 	 * this service
@@ -156,6 +169,7 @@ public class ServiceBuilder {
 	 * @return a new service
 	 */
 	public Service<Request, Response> build() {
+		checkArgument(!this.beans.isEmpty(), "Beans");
 		Dispatcher dispatcher = new AsynchronousDispatcher(this.providerFactory);
 
 		AcceptHeaderByFileSuffixFilter suffixNegotiationFilter = new AcceptHeaderByFileSuffixFilter();
