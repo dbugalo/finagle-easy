@@ -12,8 +12,8 @@ import java.util.concurrent.Executors;
 import javax.ws.rs.core.MediaType;
 
 import org.jboss.resteasy.core.AcceptHeaderByFileSuffixFilter;
+import org.jboss.resteasy.core.AsynchronousDispatcher;
 import org.jboss.resteasy.core.Dispatcher;
-import org.jboss.resteasy.core.SynchronousDispatcher;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.resteasy.util.GetRestful;
 
@@ -156,17 +156,17 @@ public class ServiceBuilder {
 	 * @return a new service
 	 */
 	public Service<Request, Response> build() {
-		Dispatcher dispatcher = new SynchronousDispatcher(this.providerFactory);
+		Dispatcher dispatcher = new AsynchronousDispatcher(this.providerFactory);
 
 		AcceptHeaderByFileSuffixFilter suffixNegotiationFilter = new AcceptHeaderByFileSuffixFilter();
 		suffixNegotiationFilter.setMediaTypeMappings(this.mediaTypes);
-        suffixNegotiationFilter.setLanguageMappings(this.languages);
+		suffixNegotiationFilter.setLanguageMappings(this.languages);
 		providerFactory.getContainerRequestFilterRegistry().registerSingleton(suffixNegotiationFilter);
 
 		for (Object bean : this.beans) {
 			dispatcher.getRegistry().addSingletonResource(bean);
 		}
-		 
+
 		return new ResteasyFinagleService(dispatcher, executor);
 	}
 
