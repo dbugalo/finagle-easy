@@ -68,10 +68,9 @@ public class TestExhaustiveClientAndServer {
 		Service<Request, Response> service = ServiceBuilder.get().withEndpoint(impl).build();
 
 		ListeningServer server = createServer(service);
-		server.announce("zk!localhost:2182!/zktest!0");
+		server.announce("zk!localhost:2182!/zktest!0").get();
 		assertNotNull("couldn't allocate server", server);
 
-		Thread.sleep(5000);
 		ClientBuilder builder = ClientBuilder.get().withService("zk!localhost:2182!/zktest");
 		ExampleService client = builder.build(ExampleService.class);
 		
