@@ -100,7 +100,6 @@
 			<version>${finagle-version}</version>
 		</dependency>
 
-		<!-- The version needed by zookeeper server-sets -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -123,6 +122,14 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-test</artifactId>
+			<version>2.4.2</version>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>

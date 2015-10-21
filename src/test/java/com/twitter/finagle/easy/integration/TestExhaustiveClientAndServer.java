@@ -3,20 +3,16 @@ package com.twitter.finagle.easy.integration;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.net.BindException;
-import java.net.InetSocketAddress;
 import java.util.UUID;
 
-import org.jboss.netty.channel.ChannelException;
+import org.apache.curator.test.TestingServer;
 import org.junit.Test;
 
+import com.twitter.finagle.Httpx;
+import com.twitter.finagle.ListeningServer;
 import com.twitter.finagle.Service;
-import com.twitter.finagle.builder.Server;
-import com.twitter.finagle.builder.ServerBuilder;
-import com.twitter.finagle.builder.ServerConfig.Yes;
 import com.twitter.finagle.easy.client.ClientBuilder;
 import com.twitter.finagle.easy.server.ServiceBuilder;
-import com.twitter.finagle.httpx.Http;
 import com.twitter.finagle.httpx.Request;
 import com.twitter.finagle.httpx.Response;
 import com.twitter.util.Duration;
@@ -41,31 +37,19 @@ public class TestExhaustiveClientAndServer {
 	 */
 	public static final int MAX_TRIES = 10;
 
-	private ExampleServiceImpl impl;
-	private Service<Request, Response> service;
-	private Server server;
-	private ExampleService client;
-	private int port;
-
 	@Test
 	public void performExhaustiveTest() throws Exception {
 
-		this.impl = new ExampleServiceImpl();
-		this.service = ServiceBuilder.get().withEndpoint(impl).build();
+		ExampleServiceImpl impl = new ExampleServiceImpl();
+		Service<Request, Response> service = ServiceBuilder.get().withEndpoint(impl).build();
 
-		this.port = BASE_PORT;
-		while (this.port < BASE_PORT + MAX_TRIES) {
-			this.server = createServer(this.service, this.port);
-			if (this.server != null) {
-				break;
-			}
-		}
+		ListeningServer server = createServer(service);
 		assertNotNull("couldn't allocate server", server);
 
-		ClientBuilder builder = ClientBuilder.get().withService("localhost:" + this.port);
-		this.client = builder.build(ExampleService.class);
+		ClientBuilder builder = ClientBuilder.get().withService("localhost:" + BASE_PORT);
+		ExampleService client = builder.build(ExampleService.class);
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < MAX_TRIES; i++) {
 			String[] expectedValue = new String[] { UUID.randomUUID().toString(), UUID.randomUUID().toString() };
 			client.setBar(expectedValue);
 			assertArrayEquals("wrong value passed", expectedValue, impl.getBar());
@@ -76,21 +60,39 @@ public class TestExhaustiveClientAndServer {
 		server.close(Duration.zero());
 	}
 
+	@Test
+	public void performExhaustiveZookeeperTest() throws Exception {
+		TestingServer zkServer = new TestingServer(2182);
+
+		ExampleServiceImpl impl = new ExampleServiceImpl();
+		Service<Request, Response> service = ServiceBuilder.get().withEndpoint(impl).build();
+
+		ListeningServer server = createServer(service);
+		server.announce("zk!localhost:2182!/zktest!0");
+		assertNotNull("couldn't allocate server", server);
+
+		Thread.sleep(5000);
+		ClientBuilder builder = ClientBuilder.get().withService("zk!localhost:2182!/zktest");
+		ExampleService client = builder.build(ExampleService.class);
+		
+		for (int i = 0; i < MAX_TRIES; i++) {
+			String[] expectedValue = new String[] { UUID.randomUUID().toString(), UUID.randomUUID().toString() };
+			client.setBar(expectedValue);
+			assertArrayEquals("wrong value passed", expectedValue, impl.getBar());
+			assertArrayEquals("wrong value returned", expectedValue, client.getBar());
+		}
+
+		builder.close();
+		server.close(Duration.zero());
+		zkServer.close();
+	}
+
 	/*
 	 * Opens up a new server on an available port by starting at the BASE_PORT
 	 * and going up from there. If this doesn't succeed after MAX_TRIES, throws
 	 * an exception.
 	 */
-	protected static Server createServer(Service<Request, Response> service, int port) {
-		try {
-			ServerBuilder<Request, Response, Yes, Yes, Yes> builder = ServerBuilder.get().sendBufferSize(256)
-					.codec(Http.get()).name("HttpServer").bindTo(new InetSocketAddress("localhost", port));
-			return ServerBuilder.safeBuild(service, builder);
-		} catch (ChannelException e) {
-			if (e.getCause() instanceof BindException) {
-				return null;
-			}
-			throw e;
-		}
+	protected static ListeningServer createServer(Service<Request, Response> service) {
+		return Httpx.serve(":" + BASE_PORT, service);
 	}
 }
