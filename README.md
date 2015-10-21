@@ -51,8 +51,8 @@ import com.twitter.util.Await;
 public class ExampleServer implements ExampleService {
 
 	@Override
-	public String getGreeting(String a) {
-		return "Hello, World!" + a;
+	public String getGreeting() {
+		return "Hello, World!";
 	}
 
 	public static void main(String[] args) throws Exception {
