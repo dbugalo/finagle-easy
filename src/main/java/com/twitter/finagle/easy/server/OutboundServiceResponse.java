@@ -1,19 +1,22 @@
 package com.twitter.finagle.easy.server;
 
+import static org.jboss.netty.handler.codec.http.HttpResponseStatus.OK;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.NewCookie;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.handler.codec.http.CookieEncoder;
+import org.jboss.netty.handler.codec.http.DefaultCookie;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpVersion;
-
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.NewCookie;
-import java.io.IOException;
-import java.io.OutputStream;
-
-import static org.jboss.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  * Used when we're hosting a Resteasy-annotated service implementation. Converts
@@ -66,13 +69,11 @@ public class OutboundServiceResponse implements org.jboss.resteasy.spi.HttpRespo
 		this.nettyResponse.setStatus(HttpResponseStatus.valueOf(status));
 	}
 
-	/**
-	 * @throws UnsupportedOperationException
-	 *             (cookies aren't supported)
-	 */
 	@Override
-	public void addNewCookie(NewCookie cookie) {
-		throw new UnsupportedOperationException("addNewCookie");
+	public void addNewCookie(NewCookie newCookie) {
+		 CookieEncoder encoder = new CookieEncoder(true);
+		 encoder.addCookie(new DefaultCookie(newCookie.getName(), newCookie.getValue()));
+		 this.nettyResponse.headers().add("Set-Cookie", encoder.encode());
 	}
 
 	@Override
@@ -89,7 +90,7 @@ public class OutboundServiceResponse implements org.jboss.resteasy.spi.HttpRespo
 	public void setOutputStream(OutputStream os) {
 		this.nettyResponse.setContent((ChannelBuffer) os);
 	}
-	
+
 	@Override
 	public boolean isCommitted() {
 		return false;

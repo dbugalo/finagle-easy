@@ -9,8 +9,12 @@ import java.io.PrintStream;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response.Status;
 
+import org.jboss.netty.handler.codec.http.CookieEncoder;
+import org.jboss.netty.handler.codec.http.DefaultCookie;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.junit.Test;
 
@@ -63,6 +67,18 @@ public class TestOutboundServiceResponse {
 		assertContentEquals(this.response.getNettyResponse().getContent(), expectedContent);
 	}
 
+	@Test
+	public void testNewCookie() {
+		Cookie cookie = new Cookie("foo", "bar");
+		NewCookie newCookie = new NewCookie(cookie);
+		response.addNewCookie(newCookie);
+		
+		CookieEncoder encoder = new CookieEncoder(true);
+		encoder.addCookie(new DefaultCookie(newCookie.getName(), newCookie.getValue()));
+		
+		assertEquals(encoder.encode(), this.response.getNettyResponse().headers().get("Set-Cookie"));
+	}
+	
 	private void assertStatusEquals(HttpResponseStatus expectedStatus) {
 		HttpResponseStatus actualStatus = this.response.getNettyResponse().getStatus();
 		assertNotNull("status is null", actualStatus);
